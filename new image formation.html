@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Question Creator with Multiple Formats</title>
+<style>
+    body {
+        font-family: Arial, sans-serif;
+        background: #f8f9fa;
+        padding: 20px;
+        text-align: center;
+    }
+    .input-box {
+        background: white;
+        padding: 15px;
+        margin: 10px auto;
+        max-width: 500px;
+        border-radius: 10px;
+        box-shadow: 0px 0px 10px rgba(0,0,0,0.1);
+    }
+    .output-box {
+        background: white;
+        padding: 20px;
+        margin: 20px auto;
+        max-width: 500px;
+        border-radius: 10px;
+        box-shadow: 0px 0px 10px rgba(0,0,0,0.2);
+    }
+    .btn {
+        padding: 10px 15px;
+        background: #007bff;
+        color: white;
+        border: none;
+        cursor: pointer;
+        margin: 5px;
+        border-radius: 5px;
+    }
+</style>
+</head>
+<body>
+
+<h2>Create Your Question</h2>
+
+<div class="input-box">
+    <input type="text" id="question" placeholder="Enter your question" style="width:100%;padding:8px;"><br><br>
+    <input type="text" id="opt1" placeholder="Option 1" style="width:100%;padding:8px;"><br><br>
+    <input type="text" id="opt2" placeholder="Option 2" style="width:100%;padding:8px;"><br><br>
+    <input type="text" id="opt3" placeholder="Option 3" style="width:100%;padding:8px;"><br><br>
+    <input type="text" id="opt4" placeholder="Option 4" style="width:100%;padding:8px;"><br><br>
+    <input type="text" id="answer" placeholder="Correct Answer" style="width:100%;padding:8px;"><br><br>
+    <button class="btn" onclick="generatePreview()">Preview</button>
+</div>
+
+<div id="previewArea" class="output-box" style="display:none;">
+    <h3 id="prevQuestion"></h3>
+    <ul style="text-align:left;">
+        <li id="prevOpt1"></li>
+        <li id="prevOpt2"></li>
+        <li id="prevOpt3"></li>
+        <li id="prevOpt4"></li>
+    </ul>
+    <p><b>Correct Answer:</b> <span id="prevAnswer"></span></p>
+</div>
+
+<div id="downloadButtons" style="display:none;">
+    <button class="btn" onclick="downloadImage('reels')">📱 Reels / Shorts (9:16)</button>
+    <button class="btn" onclick="downloadImage('youtube')">📺 YouTube Video (16:9)</button>
+    <button class="btn" onclick="downloadImage('square')">⬜ Square (1:1)</button>
+</div>
+
+<!-- html2canvas Library -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+
+<script>
+function generatePreview() {
+    document.getElementById("prevQuestion").innerText = document.getElementById("question").value;
+    document.getElementById("prevOpt1").innerText = document.getElementById("opt1").value;
+    document.getElementById("prevOpt2").innerText = document.getElementById("opt2").value;
+    document.getElementById("prevOpt3").innerText = document.getElementById("opt3").value;
+    document.getElementById("prevOpt4").innerText = document.getElementById("opt4").value;
+    document.getElementById("prevAnswer").innerText = document.getElementById("answer").value;
+    
+    document.getElementById("previewArea").style.display = "block";
+    document.getElementById("downloadButtons").style.display = "block";
+}
+
+function downloadImage(format) {
+    const element = document.getElementById("previewArea");
+    html2canvas(element, { scale: 2 }).then(canvas => {
+        let width, height;
+
+        if (format === "reels") { // 9:16
+            width = 1080;
+            height = 1920;
+        } else if (format === "youtube") { // 16:9
+            width = 1920;
+            height = 1080;
+        } else if (format === "square") { // 1:1
+            width = 1080;
+            height = 1080;
+        }
+
+        const resizedCanvas = document.createElement("canvas");
+        resizedCanvas.width = width;
+        resizedCanvas.height = height;
+        const ctx = resizedCanvas.getContext("2d");
+
+        // Fill background white
+        ctx.fillStyle = "white";
+        ctx.fillRect(0, 0, width, height);
+
+        // Center original screenshot inside new aspect ratio
+        const scale = Math.min(width / canvas.width, height / canvas.height);
+        const x = (width - canvas.width * scale) / 2;
+        const y = (height - canvas.height * scale) / 2;
+        ctx.drawImage(canvas, x, y, canvas.width * scale, canvas.height * scale);
+
+        const link = document.createElement("a");
+        link.download = `question_${format}.png`;
+        link.href = resizedCanvas.toDataURL();
+        link.click();
+    });
+}
+</script>
+
+</body>
+</html>
